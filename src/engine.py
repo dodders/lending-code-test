@@ -6,8 +6,8 @@ from operator import itemgetter
 # facilities is a dict of facility
 # covenants is a list of covenant
 banks, facilities, covenants = loader.load()
-assignments = []  # list of tuples (loan.id, facility.id)
-yields = []
+assignments = []  # list of (loan.id, facility.id)
+yields = []  # list of (facility.id, sum of all loan yields)
 
 
 def get_yield(loan, facility):
@@ -40,22 +40,26 @@ def is_eligible(loan, facility):
     return eligible
 
 
-# find the cheapest facility id that has the highest yield for this loan
-# yields is a list of tuples (facility.id, facility.rate, expected_yield)
-def allocate(loan, yields):
+# assign loan to the cheapest eligible facility id
+# update expected yield for that facility too.
+# loan_yields is a list of tuples (facility.id, facility.rate, expected_yield)
+def allocate(loan, loan_yields):
+    # allocate loan and reduce facility amount
     print(f'allocating loan {loan.id}...')
-    # yields.sort(key=itemgetter(1))  # sort by yield.
-    # facility_id = yields[0][0]
-    # facility = facilities[facility_id]  # facility.id
-    # facility.amount -= loan.amount
-    # facilities[facility_id] = facility
-    # print(f'loan {loan.id} allocated to facility {facility.id} and facility amount reduced to {facility.amount}')
-    # assignments.append((loan.id, facility_id))
+    loan_yields.sort(key=itemgetter(1))  # sort by yield.
+    facility_id = loan_yields[0][0]
+    facility = facilities[facility_id]  # facility.id
+    facility.amount -= loan.amount
+    facilities[facility_id] = facility
+    print(f'loan {loan.id} allocated to facility {facility.id} and facility amount reduced to {facility.amount}')
+    assignments.append((loan.id, facility_id))
+
+    # update yield for selected facility
 
 
 def process(loan):
     print('processing loan:', loan.id)
-    yields = []
+    loan_yields = []
     for facility in facilities.values():  # facilities is a dict, so only iterate over the values here
         eligible = is_eligible(loan, facility)
         if eligible:
@@ -64,6 +68,7 @@ def process(loan):
             if expected_yield < 0:
                 print(f'expected yield {expected_yield} for loan {loan.id} from facility {facility.id} is negative. skipping...')
             else:
-                yields.append((facility.id, facility.rate, expected_yield))
-    print(f'yields for loan {loan.id}', yields)
-    allocate(loan, yields)
+                loan_yields.append((facility.id, facility.rate, expected_yield))
+    print(f'yields for loan {loan.id}', loan_yields)
+    allocate(loan, loan_yields)
+
