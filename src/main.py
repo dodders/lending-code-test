@@ -4,8 +4,6 @@ import model
 
 print('starting...')
 
-# cache banks, facilities, covenants.
-engine.load()
 # process loans
 with open('../data/loans.csv', 'r') as loans_csv:
     reader = csv.reader(loans_csv)
