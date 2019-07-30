@@ -12,4 +12,7 @@ with open('../data/loans.csv', 'r') as loans_csv:
         loan = model.Loan(row[2], row[1], row[0], row[3], row[4])
         engine.process(loan)
 
-print('done!')
+print('done.')
+print('assignments:', engine.assignments)
+print('yields:', engine.yields)
+

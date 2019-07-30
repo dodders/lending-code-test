@@ -7,20 +7,20 @@ from operator import itemgetter
 # covenants is a list of covenant
 banks, facilities, covenants = loader.load()
 assignments = []  # list of (loan.id, facility.id)
-yields = []  # list of (facility.id, sum of all loan yields)
+yields = {}  # list of (facility.id, sum of all loan yields)
 
 
 def get_yield(loan, facility):
-    expected_yield = (1 - float(loan.default_likelihood)) * float(loan.rate) * float(loan.amount) \
-            - (float(loan.default_likelihood) * float(loan.amount)) \
-            - (float(facility.rate) * float(loan.amount))
+    expected_yield = (1 - loan.default_likelihood) * loan.rate * loan.amount \
+            - (loan.default_likelihood * loan.amount) \
+            - (facility.rate * loan.amount)
     return expected_yield
 
 
 def is_eligible(loan, facility):
     eligible = True
     print(f'processing eligibility for loan {loan.id} and facility {facility.id}')
-    if float(loan.amount) > float(facility.amount):
+    if loan.amount > facility.amount:
         print(f'loan {loan.id} ineligible for facility {facility.id} because loan amount {loan.amount} too large for remaining facility amount {facility.amount}')
         return False
     bank_covenants = [c for c in covenants if c.bank_id == facility.bank_id]
@@ -33,7 +33,7 @@ def is_eligible(loan, facility):
                 print('ineligible due to state ', loan.state)
                 break
             if covenant.max_default_likelihood != '':
-                if float(loan.default_likelihood) > float(covenant.max_default_likelihood):
+                if loan.default_likelihood > covenant.max_default_likelihood:
                     eligible = False
                     print('ineligible due to default rate ', loan.default_likelihood)
                     break
@@ -49,12 +49,14 @@ def allocate(loan, loan_yields):
     loan_yields.sort(key=itemgetter(1))  # sort by yield.
     facility_id = loan_yields[0][0]
     facility = facilities[facility_id]  # facility.id
-    facility.amount -= loan.amount
+    facility.amount -= float(loan.amount)
     facilities[facility_id] = facility
     print(f'loan {loan.id} allocated to facility {facility.id} and facility amount reduced to {facility.amount}')
     assignments.append((loan.id, facility_id))
 
     # update yield for selected facility
+    old_yield = yields.get(facility_id, 0)  # default to zero yield if no yield present for this facility
+    yields[facility_id] = old_yield + float(loan_yields[0][2])
 
 
 def process(loan):
@@ -70,5 +72,7 @@ def process(loan):
             else:
                 loan_yields.append((facility.id, facility.rate, expected_yield))
     print(f'yields for loan {loan.id}', loan_yields)
-    allocate(loan, loan_yields)
-
+    if len(loan_yields) > 0:
+        allocate(loan, loan_yields)
+    else:
+        print(f'oh dear. no eligible facilities for loan {loan.id}')
