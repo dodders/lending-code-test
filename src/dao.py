@@ -23,7 +23,7 @@ def save_yields(yields):  # yields is a dict
 
 
 # load banks, facilities and covenants
-def load():
+def load_inputs():
     banks = []
     with open(root + 'banks.csv', 'r') as bank_csv:
         reader = csv.reader(bank_csv)
@@ -53,3 +53,13 @@ def load():
     # print('covenants', covenants)
     return banks, facilities, covenants
 
+
+def load_loans():
+    loans = []
+    with open(root + 'loans.csv', 'r') as loans_csv:
+        reader = csv.reader(loans_csv)
+        next(reader)  # skip header
+        for row in reader:
+            loan = model.Loan(row[2], row[1], row[0], row[3], row[4])
+            loans.append(loan)
+    return loans

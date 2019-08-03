@@ -5,7 +5,7 @@ from operator import itemgetter
 # banks is a dict of bank
 # facilities is a dict of facility
 # covenants is a list of covenant
-banks, facilities, covenants = dao.load()
+banks, facilities, covenants = dao.load_inputs()
 assignments = []  # (loan.id, facility.id)
 yields = {}  # key=facility.id, value=sum of all loan yields
 
@@ -27,7 +27,7 @@ def is_eligible(loan, facility):
     for covenant in bank_covenants:
         # this covenant applies to either a specific facility or all facilities
         if covenant.facility_id == facility.id or covenant.facility_id == '':
-            print('applying covenant ', covenant)
+            # print('applying covenant ', covenant)
             if covenant.banned_state == loan.state:
                 eligible = False
                 print('ineligible due to state ', loan.state)
