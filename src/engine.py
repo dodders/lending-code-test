@@ -1,13 +1,13 @@
-import loader
-import model
+import dao
+from decimal import Decimal
 from operator import itemgetter
 
 # banks is a dict of bank
 # facilities is a dict of facility
 # covenants is a list of covenant
-banks, facilities, covenants = loader.load()
-assignments = []  # list of (loan.id, facility.id)
-yields = {}  # list of (facility.id, sum of all loan yields)
+banks, facilities, covenants = dao.load()
+assignments = []  # (loan.id, facility.id)
+yields = {}  # key=facility.id, value=sum of all loan yields
 
 
 def get_yield(loan, facility):
@@ -49,14 +49,14 @@ def allocate(loan, loan_yields):
     loan_yields.sort(key=itemgetter(1))  # sort by yield.
     facility_id = loan_yields[0][0]
     facility = facilities[facility_id]  # facility.id
-    facility.amount -= float(loan.amount)
+    facility.amount -= Decimal(loan.amount)
     facilities[facility_id] = facility
     print(f'loan {loan.id} allocated to facility {facility.id} and facility amount reduced to {facility.amount}')
     assignments.append((loan.id, facility_id))
 
     # update yield for selected facility
     old_yield = yields.get(facility_id, 0)  # default to zero yield if no yield present for this facility
-    yields[facility_id] = old_yield + float(loan_yields[0][2])
+    yields[facility_id] = old_yield + Decimal(loan_yields[0][2])
 
 
 def process(loan):
@@ -76,3 +76,4 @@ def process(loan):
         allocate(loan, loan_yields)
     else:
         print(f'oh dear. no eligible facilities for loan {loan.id}')
+    return yields, assignments

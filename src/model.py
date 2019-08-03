@@ -1,3 +1,6 @@
+from decimal import Decimal
+
+
 class Bank:
     def __init__(self, bank_id, name):
         self.id = bank_id
@@ -14,8 +17,8 @@ class Facility:
     def __init__(self, bank_id, facility_id, amount, rate):
         self.bank_id = bank_id
         self.id = facility_id
-        self.amount = float(amount)
-        self.rate = float(rate)
+        self.amount = Decimal(amount)
+        self.rate = Decimal(rate)
 
     def __repr__(self):
         return f'bank id: {self.bank_id} facility id: {self.id} \
@@ -29,7 +32,7 @@ class Covenant:
         if max_default_likelihood == '':
             self.max_default_likelihood = None
         else:
-            self.max_default_likelihood = float(max_default_likelihood)
+            self.max_default_likelihood = Decimal(max_default_likelihood)
         self.banned_state = banned_state
 
     def __repr__(self):
@@ -40,9 +43,9 @@ class Covenant:
 class Loan:
     def __init__(self, loan_id, amount, rate, default_likelihood, state):
         self.id = loan_id
-        self.amount = float(amount)
-        self.rate = float(rate)
-        self.default_likelihood = float(default_likelihood)
+        self.amount = Decimal(amount)
+        self.rate = Decimal(rate)
+        self.default_likelihood = Decimal(default_likelihood)
         self.state = state
 
     def __repr__(self):
