@@ -27,7 +27,7 @@ class Covenant:
         self.bank_id = bank_id
         self.facility_id = facility_id
         if max_default_likelihood == '':
-            self.max_default_likelihood = 0
+            self.max_default_likelihood = None
         else:
             self.max_default_likelihood = float(max_default_likelihood)
         self.banned_state = banned_state

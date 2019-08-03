@@ -32,7 +32,7 @@ def is_eligible(loan, facility):
                 eligible = False
                 print('ineligible due to state ', loan.state)
                 break
-            if covenant.max_default_likelihood != '':
+            if covenant.max_default_likelihood is not None:
                 if loan.default_likelihood > covenant.max_default_likelihood:
                     eligible = False
                     print('ineligible due to default rate ', loan.default_likelihood)
