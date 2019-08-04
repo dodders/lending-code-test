@@ -1,7 +1,6 @@
 import dao
 import engine
-import csv
-import model
+
 
 print('starting...')
 yields = []
@@ -15,11 +14,9 @@ for loan in loans:
 # save output
 dao.save_yields(engine.yields)
 dao.save_assignments(engine.assignments)
+dao.save_unfunded(engine.unfunded)
 
-
-print('done.')
-print('assignments:', engine.assignments)
-print('yields:', engine.yields)
+print(f'finished with {len(engine.unfunded)} unfunded loans.')
 
 
 

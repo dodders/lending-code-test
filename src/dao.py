@@ -4,17 +4,25 @@ import model
 root = '../data/'
 yields_hdr = ['facility_id', 'expected_yield']
 assignments_hdr = ['loan_id', 'facility_id']
+unfunded_hdr = ['loan_id']
+
+
+def save_unfunded(loans):
+    with open(root + 'unfunded.loans.csv', 'w') as f:
+        writer = csv.writer(f)
+        writer.writerow(unfunded_hdr)
+        writer.writerows(loans)
 
 
 def save_assignments(assignments):  # assignments is a list
-    with open(root + 'my.assignments.csv', 'w') as f:
+    with open(root + 'assignments.csv', 'w') as f:
         writer = csv.writer(f)
         writer.writerow(yields_hdr)
         writer.writerows(assignments)
 
 
 def save_yields(yields):  # yields is a dict
-    with open(root + 'my.yields.csv', 'w') as f:
+    with open(root + 'yields.csv', 'w') as f:
         writer = csv.writer(f)
         writer.writerow(assignments_hdr)
         for item in yields.items():

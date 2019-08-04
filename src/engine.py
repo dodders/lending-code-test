@@ -8,6 +8,7 @@ from operator import itemgetter
 banks, facilities, covenants = dao.load_inputs()
 assignments = []  # (loan.id, facility.id)
 yields = {}  # key=facility.id, value=sum of all loan yields
+unfunded = []  # list of unfunded loan ids
 
 
 def get_yield(loan, facility):
@@ -21,16 +22,17 @@ def is_eligible(loan, facility):
     eligible = True
     print(f'processing eligibility for loan {loan.id} and facility {facility.id}')
     if loan.amount > facility.amount:
-        print(f'loan {loan.id} ineligible for facility {facility.id} because loan amount {loan.amount} too large for remaining facility amount {facility.amount}')
+        print(f'loan {loan.id} ineligible for facility {facility.id} because loan amount {loan.amount} '
+              f'too large for remaining facility amount {facility.amount}')
         return False
     bank_covenants = [c for c in covenants if c.bank_id == facility.bank_id]
     for covenant in bank_covenants:
         # this covenant applies to either a specific facility or all facilities
-        if covenant.facility_id == facility.id or covenant.facility_id == '':
+        if covenant.facility_id == facility.id or covenant.facility_id is None:
             # print('applying covenant ', covenant)
             if covenant.banned_state == loan.state:
                 eligible = False
-                print('ineligible due to state ', loan.state)
+                print(f'ineligible due to state {loan.state}')
                 break
             if covenant.max_default_likelihood is not None:
                 if loan.default_likelihood > covenant.max_default_likelihood:
@@ -45,7 +47,7 @@ def is_eligible(loan, facility):
 # loan_yields is a list of tuples (facility.id, facility.rate, expected_yield)
 def allocate(loan, loan_yields):
     # allocate loan and reduce facility amount
-    print(f'allocating loan {loan.id}...')
+    # print(f'allocating loan {loan.id}...')
     loan_yields.sort(key=itemgetter(1))  # sort by yield.
     facility_id = loan_yields[0][0]
     facility = facilities[facility_id]  # facility.id
@@ -62,7 +64,7 @@ def allocate(loan, loan_yields):
 def process(loan):
     print('processing loan:', loan.id)
     loan_yields = []
-    for facility in facilities.values():  # facilities is a dict, so only iterate over the values here
+    for facility in facilities.values():
         eligible = is_eligible(loan, facility)
         if eligible:
             print(f'loan {loan.id} eligible for facility {facility.id}')
@@ -71,9 +73,10 @@ def process(loan):
                 print(f'expected yield {expected_yield} for loan {loan.id} from facility {facility.id} is negative. skipping...')
             else:
                 loan_yields.append((facility.id, facility.rate, expected_yield))
-    print(f'yields for loan {loan.id}', loan_yields)
     if len(loan_yields) > 0:
+        # print(f'yields for loan {loan.id}', loan_yields)
         allocate(loan, loan_yields)
     else:
         print(f'oh dear. no eligible facilities for loan {loan.id}')
+        unfunded.append(loan.id)
     return yields, assignments

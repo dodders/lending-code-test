@@ -25,11 +25,8 @@ class Facility:
 class Covenant:
     def __init__(self, bank_id, facility_id, max_default_likelihood, banned_state):
         self.bank_id = bank_id
-        self.facility_id = facility_id
-        if max_default_likelihood == '':
-            self.max_default_likelihood = None
-        else:
-            self.max_default_likelihood = Decimal(max_default_likelihood)
+        self.facility_id = facility_id if facility_id != '' else None
+        self.max_default_likelihood = Decimal(max_default_likelihood) if max_default_likelihood != '' else None
         self.banned_state = banned_state
 
     def __repr__(self):
