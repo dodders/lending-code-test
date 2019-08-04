@@ -47,13 +47,14 @@ def is_eligible(loan, facility):
 # loan_yields is a list of tuples (facility.id, facility.rate, expected_yield)
 def allocate(loan, loan_yields):
     # allocate loan and reduce facility amount
-    # print(f'allocating loan {loan.id}...')
     loan_yields.sort(key=itemgetter(1))  # sort by yield.
+    print(f'allocating loan {loan.id} from eligible facilities {loan_yields}')
     facility_id = loan_yields[0][0]
     facility = facilities[facility_id]  # facility.id
     facility.amount -= Decimal(loan.amount)
     facilities[facility_id] = facility
-    print(f'loan {loan.id} allocated to facility {facility.id} and facility amount reduced to {facility.amount}')
+    print(f'loan {loan.id} allocated to facility {facility.id} for amount {loan.amount} '
+          f'and facility amount reduced to {facility.amount}')
     assignments.append((loan.id, facility_id))
 
     # update yield for selected facility
