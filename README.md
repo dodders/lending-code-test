@@ -1,6 +1,4 @@
-# lending-code-test
-
-#Instructions
+# Instructions
 
 The solution requires python3 to run and processes the input data from:
     
